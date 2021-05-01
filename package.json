@@ -1,0 +1,38 @@
+{
+  "name": "@hexlet/code",
+  "description": "[![Actions Status](https://github.com/berpress/frontend-project-lvl3/workflows/hexlet-check/badge.svg)](https://github.com/berpress/frontend-project-lvl3/actions)",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prettier --write \"**/*.{js,jsx,json,md}\"",
+    "prepare": "husky install"
+  },
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/berpress/frontend-project-lvl3.git"
+  },
+  "author": "berpress@gmail.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/berpress/frontend-project-lvl3/issues"
+  },
+  "homepage": "https://github.com/berpress/frontend-project-lvl3#readme",
+  "devDependencies": {
+    "eslint": "^7.25.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-prettier": "^3.4.0",
+    "husky": "^6.0.0",
+    "lint-staged": "^10.5.4",
+    "prettier": "^2.2.1",
+    "pretty-quick": "^3.1.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged && pretty-quick --staged"
+    }
+  }
+}
