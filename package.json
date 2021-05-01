@@ -33,11 +33,6 @@
     "pretty-quick": "^3.1.0"
   },
   "lint-staged": {
-    "*.js": "eslint"
-},
-"husky": {
-  "hooks": {
-    "pre-commit": "lint-staged && pretty-quick --staged"
+    "*.js": "eslint --cache --fix"
   }
-}
 }

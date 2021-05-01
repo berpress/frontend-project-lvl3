@@ -1,2 +1,3 @@
-const test = 't';
+const test = "t";
+console.log(test);
 console.log(test);
