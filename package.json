@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "format": "prettier --write \"**/*.{js,jsx,json,md}\"",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "lint": "eslint ./",
+    "lint-fix": "eslint ./ --fix"
   },
   "type": "module",
   "repository": {
@@ -30,9 +32,12 @@
     "prettier": "^2.2.1",
     "pretty-quick": "^3.1.0"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged && pretty-quick --staged"
-    }
+  "lint-staged": {
+    "*.js": "eslint"
+},
+"husky": {
+  "hooks": {
+    "pre-commit": "lint-staged && pretty-quick --staged"
   }
+}
 }
