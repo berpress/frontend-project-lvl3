@@ -9,11 +9,20 @@ const removeError = (elements) => {
   elements.input.classList.remove('is-invalid');
 };
 
-const addError = (elements, text) => {
-  const error = document.createElement('div');
-  error.classList.add('feedback', 'text-danger');
-  error.innerHTML = text;
-  elements.form.append(error);
+const addFeedback = (elements, text, type = 'error') => {
+  const feedback = document.createElement('div');
+  switch (type) {
+    case 'error':
+      feedback.classList.add('feedback', 'text-danger');
+      break;
+    case 'add':
+      feedback.classList.add('feedback', 'text-success');
+      break;
+    default:
+      throw Error(`Unknown type ${type}`);
+  }
+  feedback.innerHTML = text;
+  elements.form.append(feedback);
 };
 
 const renderFormErrors = (form, elements, i18nInstance) => {
@@ -28,17 +37,13 @@ const renderFormErrors = (form, elements, i18nInstance) => {
     elements.input.classList.add('is-invalid');
     switch (fieldError) {
       case 'networkError':
-        addError(elements, i18nInstance.t('errors.networkError'));
+        addFeedback(elements, i18nInstance.t('errors.networkError'));
         break;
       case 'invalidUrl':
-        addError(elements, i18nInstance.t('errors.invalidUrl'));
+        addFeedback(elements, i18nInstance.t('errors.invalidUrl'));
         break;
       case 'notFeed':
-        addError(elements, i18nInstance.t('errors.notFeed'));
-        break;
-      case null:
-        alert('Done!');
-        addError(elements, i18nInstance.t('sucess.done'));
+        addFeedback(elements, i18nInstance.t('errors.notFeed'));
         break;
       default:
         throw Error(`Unknown error ${fieldError}`);
@@ -53,6 +58,9 @@ const createHead = (text) => {
 };
 
 const renderData = (state, elements, i18nInstance) => {
+  console.log('START RENDING');
+  removeError(elements);
+  addFeedback(elements, i18nInstance.t('sucess.done'), 'add');
   const { feeds, posts } = state;
   if (feeds.length === 0) {
     return;
@@ -65,9 +73,9 @@ const renderData = (state, elements, i18nInstance) => {
     const li = document.createElement('li');
     li.classList.add('list-group-item', 'mb-5');
     const h3 = document.createElement('h3');
-    h3.innerText = feed.feeds.title;
+    h3.innerText = feed.feed.title;
     const p = document.createElement('p');
-    p.innerText = feed.feeds.description;
+    p.innerText = feed.feed.description;
     li.appendChild(h3);
     li.appendChild(p);
     ulFeed.appendChild(li);
@@ -87,7 +95,7 @@ const renderData = (state, elements, i18nInstance) => {
       'align-items-start'
     );
     const h5 = document.createElement('h5');
-    h5.innerText = post.post.title;
+    h5.innerText = post.title;
     li.appendChild(h5);
     ulPost.appendChild(li);
   });
@@ -100,13 +108,13 @@ const renderForm = (state, elements, i18nInstance) => {
       elements.submitBtn.removeAttribute('disabled');
       elements.input.removeAttribute('disabled');
       elements.input.value = '';
-      renderData(state, elements, i18nInstance);
       break;
 
     case 'failed':
       elements.submitBtn.removeAttribute('disabled');
       elements.input.removeAttribute('disabled');
       elements.input.select();
+      renderFormErrors(state.form, elements, i18nInstance);
       break;
 
     case 'loading':
@@ -148,7 +156,9 @@ const initView = (state, elements, i18nInstance) => {
   const watchedState = onChange(state, (path) => {
     switch (path) {
       case 'form.error':
-        renderFormErrors(state.form, elements, i18nInstance);
+        break;
+      case 'posts':
+        renderData(state, elements, i18nInstance);
         break;
       case 'form.processState':
         renderForm(state, elements, i18nInstance);

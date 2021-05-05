@@ -1,9 +1,9 @@
 import axios from 'axios';
 import i18n from 'i18next';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import validate from './validate';
 import initView from './views';
 import parser from './parser';
+import { updateState, getUrlWithProxy, checkForNewPosts } from './utils';
 
 const app = () => {
   const client = new axios.Axios({ timeout: 10000 });
@@ -25,6 +25,7 @@ const app = () => {
       inputValue: null,
       valid: true,
       error: null,
+      success: false,
     },
     feeds: [],
     posts: [],
@@ -34,40 +35,31 @@ const app = () => {
 
   elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
+
     const formData = new FormData(e.target);
     const url = formData.get('url');
     watchedState.form.valid = validate(url);
     if (!watchedState.form.valid) {
       watchedState.form.error = 'invalidUrl';
+      watchedState.form.processState = 'failed';
     } else {
       watchedState.form.inputValue = url;
       watchedState.form.error = null;
       watchedState.form.processState = 'loading';
       client
-        .get(url)
+        .get(getUrlWithProxy(url))
         .then((response) => {
-          const dataRSS = parser(response.data);
-          if (dataRSS.feeds === null && response.status < 400) {
-            watchedState.form.error = 'notFeed';
-            watchedState.form.processState = 'filling';
-          } else {
-            const id = watchedState.feeds.length;
-            watchedState.feeds.push({ id: id + 1, feeds: dataRSS.feeds });
-            const posts = dataRSS.posts.map((post) => ({ id: id + 1, post }));
-            const arr1 = watchedState.posts;
-            const concatRes = arr1.concat(posts);
-            watchedState.posts = concatRes;
-            watchedState.form.error = null;
-            watchedState.form.processState = 'filling';
-          }
+          const dataRSS = parser(JSON.parse(response.data).contents);
+          updateState(dataRSS, watchedState, url);
         })
-        .catch(() => {
-          //   console.log(error);
-          //   alert('Failed, see console');
+        .catch((error) => {
+          console.log(error);
+          alert('Failed, see console');
           watchedState.form.error = 'networkError';
           watchedState.form.processState = 'failed';
         });
     }
+    checkForNewPosts(watchedState, client);
   });
 };
 
