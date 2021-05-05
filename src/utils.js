@@ -7,7 +7,7 @@ const PROXY_URL =
   'https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=';
 
 export const updateState = (dataRSS, state, link) => {
-  if (dataRSS.feeds === null) {
+  if (dataRSS.feed === null) {
     state.form.error = 'notFeed';
     state.form.processState = 'failed';
   } else {
@@ -30,7 +30,6 @@ export const getUrlWithProxy = (url) => {
 };
 
 export const checkForNewPosts = (state, client) => {
-  console.log(state);
   setTimeout(checkForNewPosts, TIMEOUT_VALUE, state, client);
   const { feeds } = state;
   const urls = feeds.map((feed) => feed.link);
@@ -50,10 +49,17 @@ export const checkForNewPosts = (state, client) => {
         const diffPosts = differenceBy(newPosts, state.posts, 'title');
         if (diffPosts.length !== 0) {
           state.posts = [...diffPosts, ...state.posts];
+          return true;
         }
+        return false;
       })
       .catch((err) => {
         throw err;
       });
   });
+};
+
+export const findDescription = (posts, title) => {
+  const fPost = posts.filter((post) => post.title === title);
+  return fPost[0].description.replace(/<[^>]*>?/gm, '');
 };

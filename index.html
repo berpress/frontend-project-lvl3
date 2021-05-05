@@ -5,6 +5,28 @@
     <title><%= htmlWebpackPlugin.options.title %></title>
   </head>
   <body class="d-flex flex-column min-vh-100">
+
+        <!-- Modal -->
+        <div class="modal fade" id="modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                ...
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" id='closeModal'>Close</button>
+                <a class="btn btn-primary full-article" href="" role="button" target="_blank" rel="noopener noreferrer" id="viewBtn">View</a>
+            </div>
+            </div>
+        </div>
+        </div>
+
       <main class="flex-grow-1">
         <div class="jumbotron">
             <div class="col-md-10 col-lg-8 mx-auto">
@@ -21,7 +43,7 @@
                     </div>
                 </div>
                 <p class="text-muted my-1">
-                    Example: https://ru.hexlet.io/lessons.rss
+                    Example: https://lenta.ru/rss/news
                   </p>
             </form>
           </div>

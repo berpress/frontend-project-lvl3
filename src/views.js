@@ -1,6 +1,22 @@
 import onChange from 'on-change';
 import resources from './locales';
 
+const showModal = (state, elements) => {
+  if (state.modal.show) {
+    elements.modal.classList.add('show');
+    elements.modal.setAttribute('role', 'dialog');
+    elements.modal.setAttribute('style', 'display: block;');
+    elements.modalTitle.innerText = state.modal.title;
+    elements.modalBody.innerText = state.modal.description;
+    elements.modalViewBtn.setAttribute('href', state.modal.link);
+  } else {
+    elements.modal.classList.remove('show');
+    elements.modal.setAttribute('style', 'display: none;');
+    elements.modalTitle.innerText = '';
+    elements.modalBody.innerText = '';
+  }
+};
+
 const removeError = (elements) => {
   const error = elements.form.querySelector('.feedback');
   if (error) {
@@ -39,11 +55,14 @@ const renderFormErrors = (form, elements, i18nInstance) => {
       case 'networkError':
         addFeedback(elements, i18nInstance.t('errors.networkError'));
         break;
-      case 'invalidUrl':
+      case 'invalidLink':
         addFeedback(elements, i18nInstance.t('errors.invalidUrl'));
         break;
       case 'notFeed':
         addFeedback(elements, i18nInstance.t('errors.notFeed'));
+        break;
+      case 'rssIsAdd':
+        addFeedback(elements, i18nInstance.t('errors.doubleUrl'));
         break;
       default:
         throw Error(`Unknown error ${fieldError}`);
@@ -58,7 +77,6 @@ const createHead = (text) => {
 };
 
 const renderData = (state, elements, i18nInstance) => {
-  console.log('START RENDING');
   removeError(elements);
   addFeedback(elements, i18nInstance.t('sucess.done'), 'add');
   const { feeds, posts } = state;
@@ -71,7 +89,7 @@ const renderData = (state, elements, i18nInstance) => {
   ulFeed.classList.add('list-group', 'mb-5');
   feeds.forEach((feed) => {
     const li = document.createElement('li');
-    li.classList.add('list-group-item', 'mb-5');
+    li.classList.add('list-group-item');
     const h3 = document.createElement('h3');
     h3.innerText = feed.feed.title;
     const p = document.createElement('p');
@@ -94,9 +112,15 @@ const renderData = (state, elements, i18nInstance) => {
       'justify-content-between',
       'align-items-start'
     );
-    const h5 = document.createElement('h5');
-    h5.innerText = post.title;
-    li.appendChild(h5);
+    const a = document.createElement('a');
+    a.setAttribute('href', post.link);
+    a.innerText = post.title;
+    const button = document.createElement('button');
+    button.innerText = 'Show';
+    button.classList.add('btn', 'btn-primary', 'btn-sm');
+    button.setAttribute('data-button', 'show');
+    li.appendChild(a);
+    li.appendChild(button);
     ulPost.appendChild(li);
   });
   elements.posts.appendChild(ulPost);
@@ -156,6 +180,10 @@ const initView = (state, elements, i18nInstance) => {
   const watchedState = onChange(state, (path) => {
     switch (path) {
       case 'form.error':
+        renderForm(state, elements, i18nInstance);
+        break;
+      case 'modal.show':
+        showModal(state, elements);
         break;
       case 'posts':
         renderData(state, elements, i18nInstance);

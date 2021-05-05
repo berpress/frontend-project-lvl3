@@ -20,7 +20,13 @@ const getPosts = (data) => {
     const resArray = [...items].map((item) => {
       const title = item.querySelector('title');
       const link = item.querySelector('link');
-      return { title: title.textContent, link: link.textContent };
+      const description = item.querySelector('description');
+      return {
+        title: title.textContent,
+        link: link.textContent,
+        description: description.textContent,
+        isShow: false,
+      };
     });
     return _.flatten(resArray);
   }
