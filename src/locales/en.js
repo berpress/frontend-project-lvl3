@@ -1,9 +1,5 @@
 export default {
   translation: {
-    languages: {
-      en: 'English',
-      ru: 'Русский',
-    },
     texts: {
       h1: 'RSS Reader',
       h2Feed: 'Feeds',
@@ -13,6 +9,8 @@ export default {
     },
     buttons: {
       start: 'Start',
+      showPost: 'Show',
+      close: 'Close',
     },
     errors: {
       invalidUrl: "It's not valid link",

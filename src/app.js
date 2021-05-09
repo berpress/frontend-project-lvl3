@@ -7,28 +7,45 @@ import {
   updateState,
   getUrlWithProxy,
   checkForNewPosts,
-  findDescription,
+  getPostDescription,
+  findPost,
+  togglePostShow,
 } from './utils';
+
+const getElements = () => ({
+  form: document.querySelector('.rss-form'),
+  h1: document.querySelector('h1'),
+  submitBtn: document.getElementById('submit'),
+  lead: document.querySelector('.lead'),
+  input: document.getElementById('input'),
+  posts: document.querySelector('.posts'),
+  feeds: document.querySelector('.feeds'),
+  modal: document.querySelector('#modal'),
+  modalCloseBtns: document.querySelectorAll('[data-close="closeModal"]'),
+  modalBody: document.querySelector('.modal-body'),
+  modalTitle: document.querySelector('.modal-title'),
+  modalViewBtn: document.querySelector('#viewBtn'),
+});
+
+const showBtnHandler = (state) => (event) => {
+  if (event.target.type === 'submit') {
+    const title = event.target.parentElement.querySelector('a');
+    state.modal.title = title.textContent;
+    const post = findPost(state.posts, title.textContent);
+    state.modal.description = getPostDescription(post, title.textContent);
+    togglePostShow(post);
+    const a = event.target.parentElement.querySelector('a');
+    state.modal.idPost = a.dataset.id;
+    state.modal.link = title;
+    state.modal.show = true;
+  }
+};
 
 const app = () => {
   const client = new axios.Axios({ timeout: 10000 });
-  const elements = {
-    form: document.querySelector('.rss-form'),
-    h1: document.querySelector('h1'),
-    submitBtn: document.getElementById('submit'),
-    lead: document.querySelector('.lead'),
-    input: document.getElementById('input'),
-    posts: document.querySelector('.posts'),
-    feeds: document.querySelector('.feeds'),
-    modal: document.querySelector('#modal'),
-    modalCloseBtn: document.querySelector('#closeModal'),
-    modalBody: document.querySelector('.modal-body'),
-    modalTitle: document.querySelector('.modal-title'),
-    modalViewBtn: document.querySelector('#viewBtn'),
-  };
+  const elements = getElements();
   const i18nInstance = i18n.createInstance();
 
-  // state
   const state = {
     form: {
       processState: 'filling',
@@ -44,30 +61,20 @@ const app = () => {
       title: '',
       description: '',
       link: '',
+      idPost: null,
     },
   };
 
   const watchedState = initView(state, elements, i18nInstance);
 
-  const addShowBtnHandler = () => {
-    const showButtons = document.querySelectorAll('[data-button=show]');
-    [...showButtons].forEach((btn) => {
-      btn.addEventListener('click', (e) => {
-        const title = e.target.parentElement.querySelector('a');
-        watchedState.modal.title = title.innerText;
-        watchedState.modal.description = findDescription(
-          watchedState.posts,
-          title.innerText
-        );
-        watchedState.modal.link = title;
-        watchedState.modal.show = true;
-      });
+  elements.posts.addEventListener('click', showBtnHandler(watchedState));
+
+  [...elements.modalCloseBtns].forEach((closeBtn) => {
+    closeBtn.addEventListener('click', () => {
+      watchedState.modal.title = '';
+      watchedState.modal.description = '';
+      watchedState.modal.show = false;
     });
-  };
-  elements.modalCloseBtn.addEventListener('click', () => {
-    watchedState.modal.title = '';
-    watchedState.modal.description = '';
-    watchedState.modal.show = false;
   });
 
   elements.form.addEventListener('submit', (e) => {
@@ -76,7 +83,6 @@ const app = () => {
     const formData = new FormData(e.target);
     const url = formData.get('url');
     watchedState.form.error = validate(watchedState.feeds, url);
-    console.log(watchedState);
     if (watchedState.form.error !== null) {
       watchedState.form.processState = 'failed';
       watchedState.form.valid = false;
@@ -89,17 +95,12 @@ const app = () => {
         .then((response) => {
           const dataRSS = parser(JSON.parse(response.data).contents);
           updateState(dataRSS, watchedState, url);
-          addShowBtnHandler();
         })
-        .catch((error) => {
-          console.log(error);
-          alert('Failed, see console');
+        .catch(() => {
           watchedState.form.error = 'networkError';
           watchedState.form.processState = 'failed';
         });
-      if (checkForNewPosts(watchedState, client)) {
-        addShowBtnHandler();
-      }
+      checkForNewPosts(watchedState, client);
     }
   });
 };

@@ -11,6 +11,7 @@
     "lint-fix": "eslint ./ --fix",
     "build": "webpack"
   },
+  "main": "src/app.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/berpress/frontend-project-lvl3.git"
@@ -23,7 +24,7 @@
   "homepage": "https://github.com/berpress/frontend-project-lvl3#readme",
   "devDependencies": {
     "css-loader": "^5.2.4",
-    "eslint": "^7.25.0",
+    "eslint": "^7.26.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.22.1",
